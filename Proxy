@@ -1,0 +1,24 @@
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+import java.util.*;
+
+public class SimpleProxy implements InvocationHandler {
+    private final Object delegate;
+
+    private SimpleProxy(Object delegate) {
+        this.delegate = delegate;
+    }
+
+    public static <T> T timeCost(T delegate) {
+        return (T) (Proxy.newProxyInstance(ClassLoader.getSystemClassLoader(), delegate.getClass().getInterfaces(), new SimpleProxy(delegate)));
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        long i = System.currentTimeMillis();
+        Object result = method.invoke(delegate, args);
+        System.out.println(System.currentTimeMillis() - i);
+        return result;
+    }
+}
